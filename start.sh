@@ -8,6 +8,7 @@ python -c "import nltk; nltk.download('punkt', quiet=True); nltk.download('brown
 
 echo "✅ NLTK data ready"
 
-# Start server
-echo "🚀 Starting Uvicorn..."
-uvicorn api_server:app --host 0.0.0.0 --port ${PORT:-8000}
+# Start server with proper PORT handling
+PORT=${PORT:-8000}
+echo "🚀 Starting Uvicorn on port $PORT..."
+uvicorn api_server:app --host 0.0.0.0 --port $PORT
