@@ -270,6 +270,22 @@ MemeTide is built as an **Agent Service Provider (ASP)** for OKX.AI platform.
 
 📹 [Watch 90-second demo](https://youtu.be/XXX) (Coming soon)
 
+**Live API Demo:** [Coming soon after deployment]
+
+---
+
+## Deployment
+
+**Quick Deploy (5 min):** See [DEPLOY_QUICK.md](DEPLOY_QUICK.md)
+
+**Full Guide:** See [DEPLOY.md](DEPLOY.md) for Railway, Render, Fly.io, Docker options.
+
+**Deployment Configs:**
+- ✅ `Dockerfile` - Docker container
+- ✅ `Procfile` - Heroku/Railway
+- ✅ `railway.json` - Railway config
+- ✅ `runtime.txt` - Python version
+
 ---
 
 ## Hackathon Submission
