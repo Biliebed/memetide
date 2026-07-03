@@ -109,6 +109,20 @@ class ConnectionManager:
             token_data: Token prediction data
             scan_id: Scan ID for reference
         """
+        # Extract sentiment safely (could be object or dict)
+        sentiment = token_data.get("sentiment", {})
+        if hasattr(sentiment, "__dict__"):
+            sentiment_compound = getattr(sentiment, "compound", 0)
+        elif isinstance(sentiment, dict):
+            sentiment_compound = sentiment.get("compound", 0)
+        else:
+            sentiment_compound = 0
+        
+        # Extract metrics safely
+        metrics = token_data.get("metrics", {})
+        if hasattr(metrics, "__dict__"):
+            metrics = metrics.__dict__
+        
         alert = {
             "type": "token_alert",
             "scan_id": scan_id,
@@ -118,10 +132,10 @@ class ConnectionManager:
                 "confidence": token_data.get("confidence"),
                 "risk_level": token_data.get("risk_level"),
                 "mentions": token_data.get("mention_count"),
-                "sentiment": token_data.get("sentiment", {}).get("compound", 0),
-                "contract": token_data.get("metrics", {}).get("contract_address"),
-                "price_usd": token_data.get("metrics", {}).get("price_usd"),
-                "market_cap": token_data.get("metrics", {}).get("market_cap"),
+                "sentiment": sentiment_compound,
+                "contract": metrics.get("contract_address") if isinstance(metrics, dict) else None,
+                "price_usd": metrics.get("price_usd") if isinstance(metrics, dict) else None,
+                "market_cap": metrics.get("market_cap") if isinstance(metrics, dict) else None,
             },
             "message": self._generate_alert_message(token_data),
             "timestamp": datetime.utcnow().isoformat()
@@ -134,14 +148,22 @@ class ConnectionManager:
         symbol = token_data.get("token_symbol")
         confidence = token_data.get("confidence")
         score = token_data.get("score")
-        sentiment = token_data.get("sentiment", {}).get("compound", 0)
+        
+        # Extract sentiment safely
+        sentiment = token_data.get("sentiment", {})
+        if hasattr(sentiment, "compound"):
+            sentiment_value = sentiment.compound
+        elif isinstance(sentiment, dict):
+            sentiment_value = sentiment.get("compound", 0)
+        else:
+            sentiment_value = 0
         
         if confidence == "high":
-            return f"🔥 HIGH confidence: ${symbol} detected (Score: {score:.1f}, Sentiment: {sentiment:.2f})"
+            return f"🔥 HIGH confidence: ${symbol} detected (Score: {score:.1f}, Sentiment: {sentiment_value:.2f})"
         elif confidence == "medium":
-            return f"⚠️ MEDIUM confidence: ${symbol} trending (Score: {score:.1f}, Sentiment: {sentiment:.2f})"
+            return f"⚠️ MEDIUM confidence: ${symbol} trending (Score: {score:.1f}, Sentiment: {sentiment_value:.2f})"
         else:
-            return f"ℹ️ LOW confidence: ${symbol} detected (Score: {score:.1f}, Sentiment: {sentiment:.2f})"
+            return f"ℹ️ LOW confidence: ${symbol} detected (Score: {score:.1f}, Sentiment: {sentiment_value:.2f})"
     
     async def broadcast_scan_complete(self, scan_result: Dict[str, Any]):
         """Broadcast scan completion notification"""
