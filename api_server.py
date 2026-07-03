@@ -14,6 +14,7 @@ from typing import Optional, List
 from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 import uvicorn
 
@@ -90,17 +91,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Mount static files (web dashboard)
+app.mount("/static", StaticFiles(directory="static"), name="static")
+
 
 # --- Endpoints ---
 
 @app.get("/", response_model=dict)
 async def root():
-    """Root endpoint with API info"""
+    """Root endpoint - redirect to web dashboard"""
+    from fastapi.responses import RedirectResponse
+    return RedirectResponse(url="/static/index.html")
+
+
+@app.get("/api", response_model=dict)
+async def api_info():
+    """API info endpoint"""
     return {
         "name": "MemeTide API",
         "version": "1.0.0",
         "description": "AI-powered memecoin trend prediction",
         "docs": "/docs",
+        "dashboard": "/static/index.html",
         "endpoints": {
             "health": "/health",
             "scan": "/scan",

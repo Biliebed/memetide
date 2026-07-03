@@ -22,6 +22,7 @@ Stop chasing pumps. Start predicting them.
 ✅ **Risk assessment** - Detects scams, rugs, and honeypots  
 ✅ **Confidence scoring** - Ranks predictions by reliability  
 ✅ **REST API** - FastAPI server with 8 endpoints  
+✅ **Web Dashboard** - Interactive UI for scanning  
 ✅ **CLI tool** - Quick terminal-based scanning  
 ✅ **Zero setup** - Works out of the box with mock data  
 
@@ -39,37 +40,17 @@ python3 -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
 
-# Run scan
-python cli.py
+# Start server (API + Web Dashboard)
+./start_server.sh
+
+# Open dashboard
+open http://localhost:8000
 ```
 
 **Output:**
-```
-🌊 MEMETIDE SCAN RESULTS
-
-📊 TOP 3 PREDICTIONS:
-
-1. 🔥 $PEPE2
-   Score: 78.3/100
-   Mentions: 24 (18.2/hr)
-   Sentiment: 87.5% positive
-   Risk: LOW
-   Confidence: HIGH
-
-2. ⚠️ $FLOKI
-   Score: 53.1/100
-   Mentions: 9 (5.0/hr)
-   Sentiment: 76.9% positive
-   Risk: LOW
-   Confidence: MEDIUM
-
-3. ❌ $SCAMCOIN
-   Score: 0.0/100
-   Mentions: 3 (2.4/hr)
-   Sentiment: 0.0% positive
-   Risk: HIGH
-   Confidence: LOW
-```
+- 🌐 **Web Dashboard:** http://localhost:8000
+- 📚 **API Docs:** http://localhost:8000/docs
+- 🔍 **Interactive Swagger UI** for testing endpoints
 
 ---
 
