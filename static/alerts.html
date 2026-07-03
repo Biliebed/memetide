@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MemeTide - Real-time Alerts Demo</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+        
+        .status-badge {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .status-badge.connected {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status-badge.disconnected {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            background: #f3f4f6;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .stat-label {
+            font-size: 0.9em;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+        
+        .alerts-container {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .alert {
+            background: #f9fafb;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            animation: slideIn 0.3s ease-out;
+        }
+        
+        .alert.high {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .alert.medium {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .alert-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .alert-symbol {
+            font-size: 1.5em;
+            font-weight: bold;
+        }
+        
+        .alert-confidence {
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .confidence-high {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .confidence-medium {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .confidence-low {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .alert-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            font-size: 0.9em;
+            color: #6b7280;
+        }
+        
+        .detail-item strong {
+            color: #111827;
+        }
+        
+        .button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        
+        .button:active {
+            transform: translateY(0);
+        }
+        
+        .button.disconnect {
+            background: #ef4444;
+        }
+        
+        .button.disconnect:hover {
+            background: #dc2626;
+        }
+        
+        .timestamp {
+            font-size: 0.85em;
+            color: #9ca3af;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #9ca3af;
+        }
+        
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌊 MemeTide</h1>
+            <p>Real-time Memecoin Trend Alerts</p>
+        </div>
+        
+        <div class="card">
+            <div class="status">
+                <h2>WebSocket Connection</h2>
+                <span id="statusBadge" class="status-badge disconnected">DISCONNECTED</span>
+            </div>
+            
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="alertCount">0</div>
+                    <div class="stat-label">Alerts Received</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="highAlertCount">0</div>
+                    <div class="stat-label">High Confidence</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="connectionTime">--</div>
+                    <div class="stat-label">Connected Time</div>
+                </div>
+            </div>
+            
+            <button id="connectBtn" class="button" onclick="toggleConnection()">Connect to Alerts</button>
+        </div>
+        
+        <div class="card">
+            <h2 style="margin-bottom: 20px;">Live Alerts</h2>
+            <div id="alertsContainer" class="alerts-container">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📡</div>
+                    <p>Waiting for alerts...</p>
+                    <p style="font-size: 0.9em; margin-top: 10px;">Connect to WebSocket to receive real-time notifications</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let ws = null;
+        let alertCount = 0;
+        let highAlertCount = 0;
+        let connectionStartTime = null;
+        let timerInterval = null;
+        
+        function toggleConnection() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                disconnect();
+            } else {
+                connect();
+            }
+        }
+        
+        function connect() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws/alerts?client_id=web_${Date.now()}`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = () => {
+                console.log('WebSocket connected');
+                updateStatus('connected');
+                connectionStartTime = Date.now();
+                startTimer();
+            };
+            
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Alert received:', data);
+                handleMessage(data);
+            };
+            
+            ws.onclose = () => {
+                console.log('WebSocket disconnected');
+                updateStatus('disconnected');
+                stopTimer();
+            };
+            
+            ws.onerror = (error) => {
+                console.error('WebSocket error:', error);
+                updateStatus('disconnected');
+            };
+        }
+        
+        function disconnect() {
+            if (ws) {
+                ws.close();
+                ws = null;
+            }
+        }
+        
+        function updateStatus(status) {
+            const badge = document.getElementById('statusBadge');
+            const btn = document.getElementById('connectBtn');
+            
+            if (status === 'connected') {
+                badge.textContent = 'CONNECTED';
+                badge.className = 'status-badge connected';
+                btn.textContent = 'Disconnect';
+                btn.className = 'button disconnect';
+            } else {
+                badge.textContent = 'DISCONNECTED';
+                badge.className = 'status-badge disconnected';
+                btn.textContent = 'Connect to Alerts';
+                btn.className = 'button';
+            }
+        }
+        
+        function handleMessage(data) {
+            switch (data.type) {
+                case 'connection':
+                    addSystemAlert('✅ Connected to MemeTide alerts');
+                    break;
+                    
+                case 'token_alert':
+                    addTokenAlert(data);
+                    alertCount++;
+                    if (data.token.confidence === 'high') {
+                        highAlertCount++;
+                    }
+                    updateStats();
+                    break;
+                    
+                case 'scan_complete':
+                    addSystemAlert(`✅ Scan ${data.scan_id} complete: ${data.tokens_found} tokens found`);
+                    break;
+            }
+        }
+        
+        function addTokenAlert(data) {
+            const container = document.getElementById('alertsContainer');
+            
+            // Remove empty state
+            if (container.querySelector('.empty-state')) {
+                container.innerHTML = '';
+            }
+            
+            const alert = document.createElement('div');
+            alert.className = `alert ${data.token.confidence}`;
+            
+            const confidenceClass = `confidence-${data.token.confidence}`;
+            const emoji = data.token.confidence === 'high' ? '🔥' : data.token.confidence === 'medium' ? '⚠️' : 'ℹ️';
+            
+            alert.innerHTML = `
+                <div class="alert-header">
+                    <div class="alert-symbol">${emoji} $${data.token.symbol}</div>
+                    <div class="alert-confidence ${confidenceClass}">${data.token.confidence}</div>
+                </div>
+                <div class="alert-details">
+                    <div class="detail-item">
+                        <strong>Score:</strong> ${data.token.score.toFixed(1)}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Mentions:</strong> ${data.token.mentions}
+                    </div>
+                    <div class="detail-item">
+                        <strong>Sentiment:</strong> ${(data.token.sentiment * 100).toFixed(0)}%
+                    </div>
+                    <div class="detail-item">
+                        <strong>Risk:</strong> ${data.token.risk_level}
+                    </div>
+                    ${data.token.price_usd ? `
+                    <div class="detail-item">
+                        <strong>Price:</strong> $${data.token.price_usd.toExponential(2)}
+                    </div>
+                    ` : ''}
+                    ${data.token.market_cap ? `
+                    <div class="detail-item">
+                        <strong>Market Cap:</strong> $${formatNumber(data.token.market_cap)}
+                    </div>
+                    ` : ''}
+                </div>
+                <div class="timestamp">${new Date(data.timestamp).toLocaleTimeString()}</div>
+            `;
+            
+            container.insertBefore(alert, container.firstChild);
+            
+            // Limit to 20 alerts
+            while (container.children.length > 20) {
+                container.removeChild(container.lastChild);
+            }
+        }
+        
+        function addSystemAlert(message) {
+            const container = document.getElementById('alertsContainer');
+            
+            if (container.querySelector('.empty-state')) {
+                container.innerHTML = '';
+            }
+            
+            const alert = document.createElement('div');
+            alert.className = 'alert';
+            alert.innerHTML = `
+                <div>${message}</div>
+                <div class="timestamp">${new Date().toLocaleTimeString()}</div>
+            `;
+            
+            container.insertBefore(alert, container.firstChild);
+        }
+        
+        function updateStats() {
+            document.getElementById('alertCount').textContent = alertCount;
+            document.getElementById('highAlertCount').textContent = highAlertCount;
+        }
+        
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                if (connectionStartTime) {
+                    const elapsed = Math.floor((Date.now() - connectionStartTime) / 1000);
+                    const minutes = Math.floor(elapsed / 60);
+                    const seconds = elapsed % 60;
+                    document.getElementById('connectionTime').textContent = 
+                        `${minutes}:${seconds.toString().padStart(2, '0')}`;
+                }
+            }, 1000);
+        }
+        
+        function stopTimer() {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            document.getElementById('connectionTime').textContent = '--';
+            connectionStartTime = null;
+        }
+        
+        function formatNumber(num) {
+            if (num >= 1e6) return (num / 1e6).toFixed(1) + 'M';
+            if (num >= 1e3) return (num / 1e3).toFixed(1) + 'K';
+            return num.toString();
+        }
+        
+        // Cleanup on page unload
+        window.addEventListener('beforeunload', () => {
+            disconnect();
+        });
+    </script>
+</body>
+</html>

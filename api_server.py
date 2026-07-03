@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional, List
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -20,6 +20,7 @@ import uvicorn
 
 from src.engine import MemeTideEngine
 from src.models import ScanResult
+from src.websocket_manager import manager as ws_manager
 
 
 # --- Request/Response Models ---
@@ -66,7 +67,8 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     print("🌊 MemeTide API starting up...")
     print(f"   Time: {datetime.utcnow().isoformat()}")
-    print(f"   Version: 1.0.0")
+    print(f"   Version: 1.1.0")
+    print(f"   Features: REST API + WebSocket Alerts")
     yield
     print("🌊 MemeTide API shutting down...")
 
@@ -75,8 +77,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="MemeTide API",
-    description="AI-powered memecoin trend prediction API",
-    version="1.0.0",
+    description="AI-powered memecoin trend prediction API with real-time WebSocket alerts",
+    version="1.1.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -109,15 +111,19 @@ async def api_info():
     """API info endpoint"""
     return {
         "name": "MemeTide API",
-        "version": "1.0.0",
-        "description": "AI-powered memecoin trend prediction",
+        "version": "1.1.0",
+        "description": "AI-powered memecoin trend prediction with real-time alerts",
         "docs": "/docs",
         "dashboard": "/static/index.html",
+        "websocket": "/ws/alerts",
+        "alerts_demo": "/static/alerts.html",
         "endpoints": {
             "health": "/health",
             "scan": "/scan",
             "stats": "/stats",
-            "history": "/history"
+            "history": "/history",
+            "websocket": "/ws/alerts",
+            "ws_stats": "/ws/stats"
         },
         "hackathon": "OKX.AI Genesis Hackathon 2026"
     }
@@ -129,7 +135,7 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         timestamp=datetime.utcnow().isoformat(),
-        version="1.0.0",
+        version="1.1.0",
         uptime_seconds=round(time.time() - server_start_time, 2)
     )
 
@@ -160,6 +166,15 @@ async def scan_trends(request: ScanRequest):
         
         # Store in history
         scan_history.append(result)
+        
+        # Broadcast alerts for high/medium confidence tokens
+        for prediction in result.predictions[:3]:  # Top 3 only
+            pred_dict = prediction if isinstance(prediction, dict) else prediction.__dict__
+            if pred_dict.get("confidence") in ["high", "medium"]:
+                await ws_manager.broadcast_token_alert(pred_dict, result.scan_id)
+        
+        # Broadcast scan complete
+        await ws_manager.broadcast_scan_complete(result.to_dict())
         
         # Limit results if requested
         if request.top_n:
@@ -286,6 +301,71 @@ async def clear_history():
     return {
         "status": "success",
         "message": f"Cleared {count} scan results"
+    }
+
+
+# --- WebSocket Endpoints ---
+
+@app.websocket("/ws/alerts")
+async def websocket_alerts_endpoint(websocket: WebSocket):
+    """
+    WebSocket endpoint for real-time alerts
+    
+    Connection: wss://memetide.app/ws/alerts
+    
+    Message Types:
+    - connection: Initial connection confirmation
+    - token_alert: High-confidence token detected
+    - scan_complete: Scan finished notification
+    """
+    client_id = websocket.query_params.get("client_id", "")
+    
+    try:
+        # Connect client
+        await ws_manager.connect(websocket, client_id)
+        
+        # Keep connection alive
+        while True:
+            # Wait for client messages (ping/pong or commands)
+            try:
+                data = await websocket.receive_text()
+                
+                # Handle ping
+                if data == "ping":
+                    await websocket.send_json({
+                        "type": "pong",
+                        "timestamp": datetime.utcnow().isoformat()
+                    })
+                
+                # Handle commands (future: subscribe/unsubscribe filters)
+                elif data.startswith("{"):
+                    import json
+                    message = json.loads(data)
+                    command = message.get("command")
+                    
+                    if command == "stats":
+                        stats = ws_manager.get_stats()
+                        await ws_manager.send_personal_message({
+                            "type": "stats",
+                            "data": stats
+                        }, websocket)
+                
+            except WebSocketDisconnect:
+                break
+            except Exception as e:
+                print(f"WebSocket error: {e}")
+                break
+    
+    finally:
+        ws_manager.disconnect(websocket)
+
+
+@app.get("/ws/stats", response_model=dict)
+async def websocket_stats():
+    """Get WebSocket connection statistics"""
+    return {
+        "status": "success",
+        "data": ws_manager.get_stats()
     }
 
 

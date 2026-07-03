@@ -22,6 +22,7 @@ Stop chasing pumps. Start predicting them.
 ✅ **Risk assessment** - Detects scams, rugs, and honeypots  
 ✅ **Confidence scoring** - Ranks predictions by reliability  
 ✅ **REST API** - FastAPI server with 8 endpoints  
+✅ **WebSocket alerts** - Real-time push notifications (NEW in v1.1)  
 ✅ **Web Dashboard** - Interactive UI for scanning  
 ✅ **CLI tool** - Quick terminal-based scanning  
 ✅ **Zero setup** - Works out of the box with mock data  
@@ -140,7 +141,7 @@ async with httpx.AsyncClient() as client:
     print(f"Found {result['data']['unique_tokens']} trending tokens")
 ```
 
-**Full API Docs:** [API.md](API.md) | [API Quick Start](API_QUICKSTART.md)
+**Full API Docs:** [API.md](API.md) | [API Quick Start](API_QUICKSTART.md) | [WebSocket Guide](WEBSOCKET.md)
 
 ---
 
@@ -236,8 +237,9 @@ MemeTide is built as an **Agent Service Provider (ASP)** for OKX.AI platform.
 - ✅ On-chain metrics (DexScreener)
 
 **v1.1 (Next):**
+- [x] Real-time alerts (WebSocket) ✅ **DONE**
+- [x] Live alerts demo page ✅ **DONE**
 - [ ] OKX.AI platform listing
-- [ ] Real-time alerts (WebSocket)
 - [ ] Authentication & rate limiting
 - [ ] Historical price tracking
 
