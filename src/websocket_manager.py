@@ -23,6 +23,9 @@ class ConnectionManager:
         # Connection metadata
         self.connection_metadata: Dict[WebSocket, Dict[str, Any]] = {}
         
+        # Subscription filters: websocket -> set of token symbols
+        self.subscriptions: Dict[WebSocket, Set[str]] = {}
+        
         # Alert stats
         self.total_alerts_sent = 0
         self.total_connections = 0
@@ -60,6 +63,9 @@ class ConnectionManager:
             if websocket in self.connection_metadata:
                 del self.connection_metadata[websocket]
             
+            if websocket in self.subscriptions:
+                del self.subscriptions[websocket]
+            
             print(f"❌ WebSocket disconnected: {client_id} (Total: {len(self.active_connections)})")
     
     async def send_personal_message(self, message: Dict[str, Any], websocket: WebSocket):
@@ -77,16 +83,35 @@ class ConnectionManager:
         
         # Add broadcast metadata
         message["broadcast_at"] = datetime.utcnow().isoformat()
-        message["recipients"] = len(self.active_connections)
         
         # Track alert
         self.total_alerts_sent += 1
         
-        print(f"📢 Broadcasting alert to {len(self.active_connections)} client(s)...")
+        # Filter recipients based on subscriptions
+        recipients = []
+        token_symbol = None
         
-        # Send to all connections
-        disconnected = set()
+        # Extract token symbol if this is a token alert
+        if message.get("type") == "token_alert":
+            token_symbol = message.get("token", {}).get("symbol")
+        
         for connection in self.active_connections:
+            # Check subscription filter
+            if token_symbol and not self.is_subscribed(connection, token_symbol):
+                continue
+            recipients.append(connection)
+        
+        message["recipients"] = len(recipients)
+        
+        if not recipients:
+            print(f"📢 No subscribed clients for this alert")
+            return
+        
+        print(f"📢 Broadcasting alert to {len(recipients)} client(s)...")
+        
+        # Send to subscribed connections
+        disconnected = set()
+        for connection in recipients:
             try:
                 await connection.send_json(message)
                 
@@ -100,6 +125,26 @@ class ConnectionManager:
         # Clean up disconnected clients
         for connection in disconnected:
             self.disconnect(connection)
+    
+    def subscribe(self, websocket: WebSocket, tokens: Set[str]):
+        """Subscribe client to specific tokens"""
+        self.subscriptions[websocket] = {t.upper() for t in tokens}
+        print(f"📝 Client subscribed to: {', '.join(self.subscriptions[websocket])}")
+    
+    def unsubscribe(self, websocket: WebSocket):
+        """Unsubscribe client from all filters (subscribe to all)"""
+        if websocket in self.subscriptions:
+            del self.subscriptions[websocket]
+            print(f"📝 Client unsubscribed (now receives all alerts)")
+    
+    def is_subscribed(self, websocket: WebSocket, token_symbol: str) -> bool:
+        """Check if client is subscribed to token"""
+        # No filter = subscribed to everything
+        if websocket not in self.subscriptions:
+            return True
+        
+        # Check if token in filter
+        return token_symbol.upper() in self.subscriptions[websocket]
     
     async def broadcast_token_alert(self, token_data: Dict[str, Any], scan_id: str):
         """

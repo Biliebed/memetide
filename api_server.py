@@ -11,7 +11,7 @@ import time
 from contextlib import asynccontextmanager
 from datetime import datetime
 from typing import Optional, List
-from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Query, BackgroundTasks, WebSocket, WebSocketDisconnect, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -21,6 +21,12 @@ import uvicorn
 from src.engine import MemeTideEngine
 from src.models import ScanResult
 from src.websocket_manager import manager as ws_manager
+from src.rate_limiter import RateLimitMiddleware, ws_rate_limiter
+from src.auth import (
+    get_current_user, require_premium, get_optional_user,
+    User, create_access_token, authenticate_demo_user
+)
+from src.multichain import MultiChainDexScreener, Chain
 
 
 # --- Request/Response Models ---
@@ -67,8 +73,8 @@ async def lifespan(app: FastAPI):
     """Startup and shutdown events"""
     print("🌊 MemeTide API starting up...")
     print(f"   Time: {datetime.utcnow().isoformat()}")
-    print(f"   Version: 1.1.0")
-    print(f"   Features: REST API + WebSocket Alerts")
+    print(f"   Version: 1.2.0")
+    print(f"   Features: REST API + WebSocket + Auth + Multi-chain + Rate Limiting")
     yield
     print("🌊 MemeTide API shutting down...")
 
@@ -77,8 +83,8 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="MemeTide API",
-    description="AI-powered memecoin trend prediction API with real-time WebSocket alerts",
-    version="1.1.0",
+    description="AI-powered memecoin trend prediction API with real-time WebSocket alerts, multi-chain support, and JWT authentication",
+    version="1.2.0",
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
@@ -92,6 +98,9 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Rate limiting middleware (60 requests/minute)
+app.add_middleware(RateLimitMiddleware, requests_per_minute=60)
 
 # Mount static files (web dashboard)
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -111,19 +120,31 @@ async def api_info():
     """API info endpoint"""
     return {
         "name": "MemeTide API",
-        "version": "1.1.0",
-        "description": "AI-powered memecoin trend prediction with real-time alerts",
+        "version": "1.2.0",
+        "description": "AI-powered memecoin trend prediction with real-time alerts, multi-chain support, and authentication",
         "docs": "/docs",
         "dashboard": "/static/index.html",
         "websocket": "/ws/alerts",
         "alerts_demo": "/static/alerts.html",
+        "features": {
+            "realtime_alerts": True,
+            "multichain": True,
+            "authentication": True,
+            "rate_limiting": True,
+            "subscription_filters": True
+        },
+        "supported_chains": ["ethereum", "solana", "base", "arbitrum", "polygon", "bsc"],
         "endpoints": {
             "health": "/health",
             "scan": "/scan",
             "stats": "/stats",
             "history": "/history",
             "websocket": "/ws/alerts",
-            "ws_stats": "/ws/stats"
+            "ws_stats": "/ws/stats",
+            "auth_login": "/auth/login",
+            "auth_me": "/auth/me",
+            "multichain": "/token/multichain/{symbol}",
+            "trending": "/trending/{chain}"
         },
         "hackathon": "OKX.AI Genesis Hackathon 2026"
     }
@@ -135,7 +156,7 @@ async def health_check():
     return HealthResponse(
         status="healthy",
         timestamp=datetime.utcnow().isoformat(),
-        version="1.1.0",
+        version="1.2.0",
         uptime_seconds=round(time.time() - server_start_time, 2)
     )
 
@@ -317,12 +338,29 @@ async def websocket_alerts_endpoint(websocket: WebSocket):
     - connection: Initial connection confirmation
     - token_alert: High-confidence token detected
     - scan_complete: Scan finished notification
+    
+    Client Commands:
+    - ping → pong
+    - {"command": "stats"} → Get WS stats
+    - {"command": "subscribe", "tokens": ["PEPE", "FLOKI"]} → Filter alerts
+    - {"command": "unsubscribe"} → Receive all alerts
     """
     client_id = websocket.query_params.get("client_id", "")
+    
+    # Get client IP for rate limiting
+    client_ip = "unknown"
+    if websocket.client:
+        client_ip = websocket.client.host
+    
+    # Check rate limit (max connections per IP)
+    if not ws_rate_limiter.can_connect(client_ip):
+        await websocket.close(code=1008, reason="Too many connections from this IP")
+        return
     
     try:
         # Connect client
         await ws_manager.connect(websocket, client_id)
+        ws_rate_limiter.register_connection(client_ip)
         
         # Keep connection alive
         while True:
@@ -337,7 +375,7 @@ async def websocket_alerts_endpoint(websocket: WebSocket):
                         "timestamp": datetime.utcnow().isoformat()
                     })
                 
-                # Handle commands (future: subscribe/unsubscribe filters)
+                # Handle commands
                 elif data.startswith("{"):
                     import json
                     message = json.loads(data)
@@ -349,6 +387,30 @@ async def websocket_alerts_endpoint(websocket: WebSocket):
                             "type": "stats",
                             "data": stats
                         }, websocket)
+                    
+                    elif command == "subscribe":
+                        # Subscribe to specific tokens
+                        tokens = message.get("tokens", [])
+                        if tokens:
+                            ws_manager.subscribe(websocket, set(tokens))
+                            await ws_manager.send_personal_message({
+                                "type": "subscribed",
+                                "tokens": tokens,
+                                "message": f"Subscribed to {len(tokens)} token(s)"
+                            }, websocket)
+                        else:
+                            await ws_manager.send_personal_message({
+                                "type": "error",
+                                "message": "No tokens specified"
+                            }, websocket)
+                    
+                    elif command == "unsubscribe":
+                        # Unsubscribe (receive all alerts)
+                        ws_manager.unsubscribe(websocket)
+                        await ws_manager.send_personal_message({
+                            "type": "unsubscribed",
+                            "message": "Now receiving all alerts"
+                        }, websocket)
                 
             except WebSocketDisconnect:
                 break
@@ -358,6 +420,7 @@ async def websocket_alerts_endpoint(websocket: WebSocket):
     
     finally:
         ws_manager.disconnect(websocket)
+        ws_rate_limiter.unregister_connection(client_ip)
 
 
 @app.get("/ws/stats", response_model=dict)
@@ -367,6 +430,106 @@ async def websocket_stats():
         "status": "success",
         "data": ws_manager.get_stats()
     }
+
+
+# --- Authentication Endpoints ---
+
+@app.post("/auth/login", response_model=dict)
+async def login(username: str, password: str):
+    """
+    Demo login endpoint
+    
+    **Demo Accounts:**
+    - Free: username=demo_free, password=free123
+    - Premium: username=demo_premium, password=premium123
+    """
+    token = authenticate_demo_user(username, password)
+    
+    if not token:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+    
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+        "message": "Login successful"
+    }
+
+
+@app.get("/auth/me", response_model=dict)
+async def get_user_info(user: User = Depends(get_current_user)):
+    """Get current user info"""
+    if not user:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    
+    return {
+        "user_id": user.user_id,
+        "tier": user.tier,
+        "scans_remaining": user.scans_remaining
+    }
+
+
+# --- Multi-chain Endpoints ---
+
+@app.get("/token/multichain/{symbol}", response_model=dict)
+async def get_token_multichain(
+    symbol: str,
+    chains: Optional[str] = Query(None, description="Comma-separated chain list (ethereum,solana,base)")
+):
+    """
+    Search token across multiple chains
+    
+    **Example:** /token/multichain/PEPE?chains=ethereum,solana,base
+    """
+    try:
+        dex = MultiChainDexScreener()
+        
+        # Parse chains
+        chain_list = None
+        if chains:
+            chain_names = [c.strip().lower() for c in chains.split(",")]
+            chain_list = [Chain(name) for name in chain_names if name in [e.value for e in Chain]]
+        
+        results = await dex.search_token_multi_chain(symbol, chain_list)
+        
+        return {
+            "status": "success",
+            "symbol": symbol,
+            "chains_searched": len(chain_list) if chain_list else 3,
+            "results_found": len(results),
+            "data": results
+        }
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Multi-chain search failed: {str(e)}")
+
+
+@app.get("/trending/{chain}", response_model=dict)
+async def get_trending_by_chain(
+    chain: str,
+    limit: int = Query(default=10, ge=1, le=50)
+):
+    """
+    Get trending tokens on specific chain
+    
+    **Supported chains:** ethereum, solana, base, arbitrum, polygon, bsc
+    """
+    try:
+        chain_enum = Chain(chain.lower())
+        dex = MultiChainDexScreener()
+        
+        results = await dex.get_trending_pairs(chain_enum, limit)
+        
+        return {
+            "status": "success",
+            "chain": chain,
+            "count": len(results),
+            "data": results
+        }
+    
+    except ValueError:
+        raise HTTPException(status_code=400, detail=f"Invalid chain: {chain}")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to get trending: {str(e)}")
 
 
 # --- Error handlers ---
