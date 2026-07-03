@@ -6,6 +6,7 @@ from .models import TrendPrediction, ScanResult, TokenMetrics
 from .scraper import TwitterScraper, MockTwitterScraper
 from .analyzer import SentimentAnalyzer, TokenExtractor, calculate_velocity
 from .risk import RiskScorer
+from .dexscreener import DexScreenerClient
 
 
 class MemeTideEngine:
@@ -13,10 +14,11 @@ class MemeTideEngine:
     Main MemeTide prediction engine
     """
     
-    def __init__(self, use_mock_data: bool = True):
+    def __init__(self, use_mock_data: bool = True, fetch_onchain: bool = True):
         """
         Args:
             use_mock_data: If True, use mock Twitter data for testing
+            fetch_onchain: If True, fetch on-chain metrics from DexScreener
         """
         if use_mock_data:
             self.scraper = MockTwitterScraper()
@@ -28,6 +30,15 @@ class MemeTideEngine:
         self.sentiment_analyzer = SentimentAnalyzer()
         self.token_extractor = TokenExtractor()
         self.risk_scorer = RiskScorer()
+        
+        # On-chain data fetcher
+        self.fetch_onchain = fetch_onchain
+        if fetch_onchain:
+            self.dex_client = DexScreenerClient()
+            print("[Engine] On-chain metrics ENABLED (DexScreener)")
+        else:
+            self.dex_client = None
+            print("[Engine] On-chain metrics DISABLED")
     
     async def scan(self, min_mentions: int = 3) -> ScanResult:
         """
@@ -96,11 +107,16 @@ class MemeTideEngine:
                 # Velocity calculation
                 velocity = calculate_velocity(token_ms, hours=1.0)
                 
+                # Fetch on-chain metrics (if enabled)
+                metrics = None
+                if self.fetch_onchain and self.dex_client:
+                    metrics = await self.dex_client.get_metrics(token_symbol)
+                
                 # Risk assessment
                 risk = self.risk_scorer.calculate_risk(
                     token_ms,
                     sentiment,
-                    metrics=None  # TODO: Add on-chain metrics
+                    metrics=metrics  # Now includes on-chain data
                 )
                 
                 # Confidence calculation
@@ -126,7 +142,7 @@ class MemeTideEngine:
                     risk_level=risk,
                     confidence=confidence,
                     score=score,
-                    metrics=None,  # TODO: Fetch on-chain data
+                    metrics=metrics,  # On-chain data attached
                     first_seen=min(m.timestamp for m in token_ms),
                     last_updated=datetime.utcnow().isoformat(),
                     sample_tweets=sample_tweets
@@ -136,10 +152,17 @@ class MemeTideEngine:
                 
                 # Log
                 emoji = prediction.to_emoji()
+                metrics_str = ""
+                if metrics:
+                    metrics_str = f", ${metrics.price_usd:.8f}" if metrics.price_usd else ""
+                    if metrics.liquidity:
+                        metrics_str += f", Liq: ${metrics.liquidity:,.0f}"
+                
                 print(f"  {emoji} {token_symbol}: "
                       f"{len(token_ms)} mentions, "
                       f"{sentiment.percentage_positive}% positive, "
-                      f"{risk.value} risk")
+                      f"{risk.value} risk"
+                      f"{metrics_str}")
             
             except Exception as e:
                 print(f"  ❌ Error analyzing {token_symbol}: {e}")
@@ -193,6 +216,23 @@ class MemeTideEngine:
             output.append(f"   Mentions: {pred.mention_count} ({pred.mentions_per_hour:.1f}/hr)")
             output.append(f"   Sentiment: {pred.sentiment.percentage_positive:.1f}% positive")
             output.append(f"   Risk: {pred.risk_level.value.upper()}")
-            output.append(f"   Confidence: {pred.confidence.value.upper()}\n")
+            output.append(f"   Confidence: {pred.confidence.value.upper()}")
+            
+            # On-chain metrics (if available)
+            if pred.metrics:
+                m = pred.metrics
+                output.append(f"   📊 On-Chain:")
+                if m.price_usd:
+                    output.append(f"      Price: ${m.price_usd:.8f}")
+                if m.market_cap:
+                    output.append(f"      Market Cap: ${m.market_cap:,.0f}")
+                if m.liquidity:
+                    output.append(f"      Liquidity: ${m.liquidity:,.0f}")
+                if m.age_hours:
+                    days = int(m.age_hours / 24)
+                    hours = int(m.age_hours % 24)
+                    output.append(f"      Age: {days}d {hours}h")
+            
+            output.append("")  # Empty line between tokens
         
         return "\n".join(output)

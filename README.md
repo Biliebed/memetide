@@ -18,8 +18,11 @@ Stop chasing pumps. Start predicting them.
 
 ✅ **Real-time Twitter monitoring** - Tracks thousands of crypto tweets  
 ✅ **AI sentiment analysis** - Understands crypto slang & hype  
+✅ **On-chain metrics** - Price, liquidity, market cap from DexScreener  
 ✅ **Risk assessment** - Detects scams, rugs, and honeypots  
 ✅ **Confidence scoring** - Ranks predictions by reliability  
+✅ **REST API** - FastAPI server with 8 endpoints  
+✅ **CLI tool** - Quick terminal-based scanning  
 ✅ **Zero setup** - Works out of the box with mock data  
 
 ---
@@ -119,21 +122,42 @@ python cli.py --min-mentions 5
 
 ---
 
-## API Usage (Coming Soon)
+## API Usage
+
+**Start API Server:**
+
+```bash
+./start_server.sh
+
+# Or manually:
+python api_server.py
+```
+
+**Interactive Docs:** http://localhost:8000/docs
+
+**Example API Call:**
+
+```bash
+curl -X POST http://localhost:8000/scan \
+  -H "Content-Type: application/json" \
+  -d '{"min_mentions": 3, "use_mock_data": true}'
+```
+
+**Python Client:**
 
 ```python
-from src import MemeTideEngine
+import httpx
 
-# Initialize engine
-engine = MemeTideEngine(use_mock_data=False)
-
-# Run scan
-result = await engine.scan(min_mentions=3)
-
-# Get high confidence predictions
-for pred in result.get_high_confidence():
-    print(f"🔥 ${pred.token_symbol} - Score: {pred.score}/100")
+async with httpx.AsyncClient() as client:
+    response = await client.post(
+        "http://localhost:8000/scan",
+        json={"min_mentions": 3, "use_mock_data": True}
+    )
+    result = response.json()
+    print(f"Found {result['data']['unique_tokens']} trending tokens")
 ```
+
+**Full API Docs:** [API.md](API.md) | [API Quick Start](API_QUICKSTART.md)
 
 ---
 
@@ -143,17 +167,20 @@ for pred in result.get_high_confidence():
 
 - **Scraper** (`src/scraper.py`) - Twitter/X data collection
 - **Analyzer** (`src/analyzer.py`) - Sentiment analysis & token extraction
+- **DexScreener** (`src/dexscreener.py`) - On-chain metrics (price, liquidity, age)
 - **Risk Scorer** (`src/risk.py`) - Scam detection & confidence calculation
 - **Engine** (`src/engine.py`) - Orchestrates full scan pipeline
+- **API Server** (`api_server.py`) - FastAPI REST API
 - **Models** (`src/models.py`) - Data structures
 
 **Tech Stack:**
 
 - Python 3.10+
+- FastAPI + Uvicorn (REST API)
 - TextBlob (sentiment analysis)
 - BeautifulSoup4 (web scraping)
-- httpx (async HTTP)
-- FastAPI (API server - coming soon)
+- httpx (async HTTP for DexScreener)
+- DexScreener API (on-chain data)
 
 ---
 
@@ -220,12 +247,16 @@ MemeTide is built as an **Agent Service Provider (ASP)** for OKX.AI platform.
 - ✅ AI sentiment analysis
 - ✅ Risk scoring
 - ✅ CLI tool
+- ✅ FastAPI endpoint
+- ✅ Background task support
+- ✅ Scan history & stats
+- ✅ On-chain metrics (DexScreener)
 
 **v1.1 (Next):**
-- [ ] FastAPI endpoint
 - [ ] OKX.AI platform listing
-- [ ] On-chain metrics (DexScreener integration)
-- [ ] Real-time alerts
+- [ ] Real-time alerts (WebSocket)
+- [ ] Authentication & rate limiting
+- [ ] Historical price tracking
 
 **v2.0 (Future):**
 - [ ] Multi-chain support (Solana, Base, etc.)
