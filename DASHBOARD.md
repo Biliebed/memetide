@@ -8,10 +8,15 @@ Beautiful, interactive web interface for MemeTide API.
 
 ✅ **Real-time scanning** - Scan memecoins with live updates  
 ✅ **Interactive UI** - Clean, modern design  
+✅ **Dark mode** - Toggle between light/dark themes  
+✅ **Export to JSON** - Save scan results locally  
+✅ **Scan history** - Browse last 10 scans (localStorage)  
+✅ **Sample tweets** - See top 3 tweets per token  
 ✅ **On-chain display** - Price, liquidity, market cap visualized  
 ✅ **Confidence badges** - High/Medium/Low with color coding  
 ✅ **Responsive** - Works on desktop, tablet, mobile  
 ✅ **Zero setup** - Just open browser  
+✅ **Theme persistence** - Remembers your dark mode preference  
 
 ---
 
@@ -25,10 +30,14 @@ Beautiful, interactive web interface for MemeTide API.
 ## Screenshots
 
 ### Main Dashboard
-- Gradient purple background
+- Gradient purple background (or dark blue-gray in dark mode)
 - Clean card-based layout
 - Form with 4 input fields (min mentions, top N, data source, on-chain toggle)
-- "Start Scan" button with rocket emoji
+- Three action buttons:
+  - 🚀 "Scan" - Run new scan
+  - 💾 "Export" - Download results as JSON
+  - 📜 "History" - View past scans
+- Theme toggle button (🌙/☀️) in header
 
 ### Scan Results
 - Scan metadata (ID, duration, mentions, tokens found)
@@ -37,12 +46,21 @@ Beautiful, interactive web interface for MemeTide API.
   - Score out of 100
   - Stats grid (mentions, sentiment, risk)
   - On-chain metrics section (price, market cap, liquidity, age)
+  - Sample tweets section (top 3 by engagement)
+
+### Scan History
+- List of last 10 scans
+- Each entry shows: scan ID, timestamp, token count, mentions
+- Click to reload results
 
 ### Features
 - Loading spinner during scan
-- Error messages
+- Error messages with red banner
+- Export button downloads JSON file
 - Hover effects on cards
 - Animated wave emoji in header
+- Dark mode with smooth transition
+- Theme preference saved to localStorage
 - Links to API docs and GitHub
 
 ---
@@ -74,6 +92,11 @@ Beautiful, interactive web interface for MemeTide API.
    - 🔥 **High confidence** (70-100): Strong signal, act now
    - ⚠️ **Medium confidence** (40-69): Promising, monitor
    - ❌ **Low confidence** (0-39): Weak signal, avoid
+
+5. **Export & History**
+   - Click "Export" to download JSON
+   - Click "History" to view past scans
+   - Theme toggle in top-right corner
 
 ---
 
@@ -142,7 +165,8 @@ Dashboard is automatically deployed with API server.
 
 - **Initial load:** <100ms (single HTML file)
 - **Scan request:** 0.5-2s (depends on on-chain fetch)
-- **File size:** ~19KB (uncompressed)
+- **File size:** ~28KB (uncompressed, self-contained)
+- **Local storage:** <50KB (scan history)
 
 ---
 
@@ -158,16 +182,21 @@ Dashboard is automatically deployed with API server.
 
 ## Future Enhancements
 
-**v1.1:**
-- [ ] Dark mode toggle
+**v1.1:** ✅ DONE
+- [x] Dark mode toggle
+- [x] Export results to JSON
+- [x] Scan history (localStorage)
+- [x] Sample tweets display
+
+**v1.2:**
 - [ ] Chart visualization (price history)
 - [ ] Real-time WebSocket updates
 - [ ] Save favorite tokens
-- [ ] Export results to CSV
+- [ ] Compare multiple scans
 
 **v2.0:**
 - [ ] User authentication
-- [ ] Saved scans history
+- [ ] Cloud-saved scan history
 - [ ] Alert notifications
 - [ ] Custom watchlists
 - [ ] Advanced filters
