@@ -52,6 +52,8 @@ open http://localhost:8000
 - 📚 **API Docs:** http://localhost:8000/docs
 - 🔍 **Interactive Swagger UI** for testing endpoints
 
+**Try Live Demo:** https://memetide-production.up.railway.app/docs
+
 ---
 
 ## How It Works
@@ -251,7 +253,7 @@ MemeTide is built as an **Agent Service Provider (ASP)** for OKX.AI platform.
 
 📹 [Watch 90-second demo](https://youtu.be/XXX) (Coming soon)
 
-**Live API Demo:** [Coming soon after deployment]
+**Live API Demo:** https://memetide-production.up.railway.app/docs
 
 ---
 
