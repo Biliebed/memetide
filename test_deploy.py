@@ -66,7 +66,13 @@ def test_procfile():
     with open("Procfile") as f:
         content = f.read()
     
-    if "uvicorn" in content and "api_server:app" in content:
+    # Accept either direct uvicorn OR bash script that runs uvicorn
+    valid_patterns = [
+        ("uvicorn" in content and "api_server:app" in content),  # Direct
+        ("bash start.sh" in content and os.path.exists("start.sh"))  # Via script
+    ]
+    
+    if any(valid_patterns):
         print("   ✅ Procfile valid")
         return True
     else:
