@@ -1,0 +1,117 @@
+MemeTide Demo Video - Teleprompter Script
+==========================================
+
+Read this at comfortable pace. Total: 90 seconds.
+
+---
+
+[SCENE 1: LANDING PAGE - 0:00-0:15]
+
+"Hi, I'm showcasing MemeTide - an AI-powered memecoin trend 
+predictor built for the OKX.AI Genesis Hackathon.
+
+It helps traders catch trending memecoins early while avoiding 
+scams and rug pulls."
+
+[ACTION: Show landing page, wave emoji animation]
+
+---
+
+[SCENE 2: RUN SCAN - 0:15-0:35]
+
+"MemeTide scans Twitter for trending tokens, analyzes sentiment 
+using AI, and fetches real-time on-chain data from DexScreener.
+
+[ACTION: Click Scan button, show loading]
+
+Results appear in seconds, ranked by confidence level."
+
+[ACTION: Results load, show confidence badges]
+
+---
+
+[SCENE 3: TOKEN DETAILS - 0:35-0:55]
+
+"Each token shows comprehensive metrics: price, market cap, 
+liquidity from DEX pools, plus sample tweets sorted by engagement.
+
+Risk scoring helps identify potential scams with red flags like 
+low liquidity or suspicious patterns."
+
+[ACTION: Scroll through prediction cards, highlight metrics]
+
+---
+
+[SCENE 4: FEATURES - 0:55-0:70]
+
+"Dark mode for late-night trading. 
+
+[ACTION: Toggle dark mode]
+
+Export results to JSON for external analysis. 
+
+[ACTION: Click Export]
+
+View scan history to track trends over time."
+
+[ACTION: Click History, show past scans]
+
+---
+
+[SCENE 5: TECH STACK - 0:70-0:85]
+
+"Built with FastAPI and Python. Uses DexScreener for on-chain 
+data and TextBlob for sentiment analysis. 
+
+Completely free to deploy on Railway or Render. Zero external costs."
+
+[ACTION: Show API docs briefly]
+
+---
+
+[SCENE 6: CLOSING - 0:85-0:90]
+
+"Perfect for Finance Copilot and Social Buzz categories. 
+
+Check it out at github dot com slash Biliebed slash memetide.
+
+Thank you!"
+
+[ACTION: Show final screen with GitHub URL]
+
+---
+
+END
+
+==========================================
+
+TIMING BREAKDOWN:
+- Introduction: 15 seconds
+- Core demo: 20 seconds  
+- Details: 20 seconds
+- Features: 15 seconds
+- Tech: 15 seconds
+- Closing: 5 seconds
+
+TOTAL: 90 seconds
+
+==========================================
+
+PRONUNCIATION GUIDE:
+- MemeTide: "MEEM-tide"
+- DexScreener: "DEX-screener"
+- OKX: "O-K-X" (spell out)
+- GitHub: "GIT-hub"
+- FastAPI: "Fast-A-P-I"
+- TextBlob: "TEXT-blob"
+
+==========================================
+
+TIPS:
+✓ Speak clearly at moderate pace
+✓ Pause briefly between sections
+✓ Emphasize: "AI", "trending", "scams", "free"
+✓ Smile while speaking
+✓ Don't rush the ending
+
+==========================================
