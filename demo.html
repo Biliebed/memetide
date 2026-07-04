@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MemeTide Demo - Quick Preview</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 20px;
+      min-height: 100vh;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    
+    h1 {
+      font-size: 3em;
+      margin-bottom: 10px;
+    }
+    
+    .tagline {
+      font-size: 1.2em;
+      opacity: 0.9;
+    }
+    
+    .badges {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+      flex-wrap: wrap;
+    }
+    
+    .badge {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 0.9em;
+      backdrop-filter: blur(10px);
+    }
+    
+    .demo-section {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 30px;
+      margin-bottom: 20px;
+      backdrop-filter: blur(10px);
+    }
+    
+    h2 {
+      margin-bottom: 20px;
+      font-size: 1.8em;
+    }
+    
+    .demo-box {
+      background: rgba(0, 0, 0, 0.3);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 15px;
+    }
+    
+    .api-url {
+      font-family: 'Courier New', monospace;
+      background: rgba(0, 0, 0, 0.5);
+      padding: 10px 15px;
+      border-radius: 5px;
+      margin: 10px 0;
+      word-break: break-all;
+    }
+    
+    button {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    
+    button:hover {
+      background: #45a049;
+    }
+    
+    button:active {
+      transform: scale(0.98);
+    }
+    
+    .result-box {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      padding: 15px;
+      margin-top: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.9em;
+      max-height: 400px;
+      overflow-y: auto;
+      display: none;
+    }
+    
+    .result-box.show {
+      display: block;
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .token-card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+      padding: 15px;
+      margin: 10px 0;
+    }
+    
+    .token-header {
+      font-size: 1.3em;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    
+    .token-stat {
+      display: flex;
+      justify-content: space-between;
+      margin: 5px 0;
+    }
+    
+    .ws-log {
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 5px;
+      padding: 15px;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85em;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 15px;
+    }
+    
+    .ws-message {
+      margin: 5px 0;
+      padding: 5px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .links {
+      text-align: center;
+      margin-top: 40px;
+    }
+    
+    .links a {
+      color: white;
+      text-decoration: none;
+      margin: 0 15px;
+      font-size: 1.1em;
+      border-bottom: 2px solid transparent;
+      transition: border-color 0.3s;
+    }
+    
+    .links a:hover {
+      border-bottom-color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>🌊 MemeTide</h1>
+      <p class="tagline">AI-Powered Memecoin Trend Predictor</p>
+      <div class="badges">
+        <div class="badge">✅ v1.2.0 Production</div>
+        <div class="badge">🌐 Multi-chain</div>
+        <div class="badge">🔔 Real-time</div>
+        <div class="badge">⚡ <1s Response</div>
+      </div>
+    </header>
+
+    <!-- Demo 1: Quick Scan -->
+    <div class="demo-section">
+      <h2>1. Quick Scan Demo</h2>
+      <div class="demo-box">
+        <p>Scan trending memecoins with AI sentiment analysis and risk detection:</p>
+        <div class="api-url">POST /scan</div>
+        <button onclick="runScan()">🚀 Run Scan</button>
+        <div id="scanResult" class="result-box"></div>
+      </div>
+    </div>
+
+    <!-- Demo 2: Multi-chain Search -->
+    <div class="demo-section">
+      <h2>2. Multi-chain Token Search</h2>
+      <div class="demo-box">
+        <p>Search PEPE token across Ethereum and Solana:</p>
+        <div class="api-url">GET /token/multichain/PEPE?chains=ethereum,solana</div>
+        <button onclick="runMultichain()">🔍 Search Multi-chain</button>
+        <div id="multichainResult" class="result-box"></div>
+      </div>
+    </div>
+
+    <!-- Demo 3: WebSocket -->
+    <div class="demo-section">
+      <h2>3. Real-time WebSocket Alerts</h2>
+      <div class="demo-box">
+        <p>Subscribe to real-time token alerts:</p>
+        <div class="api-url">WSS /ws/alerts</div>
+        <button id="wsButton" onclick="connectWebSocket()">🔌 Connect WebSocket</button>
+        <div id="wsLog" class="ws-log" style="display: none;"></div>
+      </div>
+    </div>
+
+    <!-- Links -->
+    <div class="links">
+      <a href="https://memetide-production.up.railway.app/docs" target="_blank">📚 API Docs</a>
+      <a href="https://github.com/Biliebed/memetide" target="_blank">💻 GitHub</a>
+      <a href="https://memetide-production.up.railway.app/health" target="_blank">❤️ Health Check</a>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://memetide-production.up.railway.app';
+    let ws = null;
+
+    async function runScan() {
+      const resultBox = document.getElementById('scanResult');
+      resultBox.classList.add('show');
+      resultBox.innerHTML = '<div class="loading">⏳ Scanning...</div>';
+
+      try {
+        const response = await fetch(`${API_BASE}/scan`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            use_mock_data: true,
+            top_n: 3,
+            min_mentions: 3
+          })
+        });
+
+        const data = await response.json();
+        
+        let html = `<div style="margin-bottom: 15px;">
+          ✅ Scan completed in ${data.data.duration_seconds}s<br>
+          Found ${data.data.unique_tokens} trending tokens
+        </div>`;
+
+        data.data.predictions.forEach(token => {
+          html += `
+            <div class="token-card">
+              <div class="token-header">${token.token_symbol}</div>
+              <div class="token-stat"><span>Score:</span><span>${token.score}</span></div>
+              <div class="token-stat"><span>Confidence:</span><span>${token.confidence}</span></div>
+              <div class="token-stat"><span>Risk:</span><span>${token.risk_level}</span></div>
+              <div class="token-stat"><span>Sentiment:</span><span>${(token.sentiment.compound * 100).toFixed(1)}%</span></div>
+            </div>
+          `;
+        });
+
+        resultBox.innerHTML = html;
+      } catch (error) {
+        resultBox.innerHTML = `<div style="color: #ff6b6b;">❌ Error: ${error.message}</div>`;
+      }
+    }
+
+    async function runMultichain() {
+      const resultBox = document.getElementById('multichainResult');
+      resultBox.classList.add('show');
+      resultBox.innerHTML = '<div class="loading">⏳ Searching across chains...</div>';
+
+      try {
+        const response = await fetch(`${API_BASE}/token/multichain/PEPE?chains=ethereum,solana`);
+        const data = await response.json();
+
+        let html = `<div style="margin-bottom: 15px;">
+          ✅ Found on ${data.results_found} chain(s)
+        </div>`;
+
+        data.data.forEach(token => {
+          html += `
+            <div class="token-card">
+              <div class="token-header">${token.chain.toUpperCase()}</div>
+              <div class="token-stat"><span>Price:</span><span>$${token.price_usd.toFixed(8)}</span></div>
+              <div class="token-stat"><span>Market Cap:</span><span>$${(token.market_cap / 1e6).toFixed(2)}M</span></div>
+              <div class="token-stat"><span>Liquidity:</span><span>$${(token.liquidity / 1e6).toFixed(2)}M</span></div>
+              <div class="token-stat"><span>24h Change:</span><span>${token.price_change_24h.toFixed(2)}%</span></div>
+            </div>
+          `;
+        });
+
+        resultBox.innerHTML = html;
+      } catch (error) {
+        resultBox.innerHTML = `<div style="color: #ff6b6b;">❌ Error: ${error.message}</div>`;
+      }
+    }
+
+    function connectWebSocket() {
+      const log = document.getElementById('wsLog');
+      const button = document.getElementById('wsButton');
+      
+      log.style.display = 'block';
+      log.innerHTML = '';
+      button.disabled = true;
+      button.textContent = '🔌 Connecting...';
+
+      function addLog(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const colors = {
+          success: '#4CAF50',
+          error: '#ff6b6b',
+          info: '#64b5f6',
+          alert: '#ffd93d'
+        };
+        log.innerHTML += `<div class="ws-message" style="color: ${colors[type]}">[${timestamp}] ${message}</div>`;
+        log.scrollTop = log.scrollHeight;
+      }
+
+      ws = new WebSocket(`${API_BASE.replace('https', 'wss')}/ws/alerts?client_id=demo_page`);
+
+      ws.onopen = () => {
+        addLog('✅ WebSocket Connected', 'success');
+        addLog('📡 Subscribing to PEPE and FLOKI...', 'info');
+        
+        ws.send(JSON.stringify({
+          command: 'subscribe',
+          tokens: ['PEPE', 'FLOKI']
+        }));
+        
+        button.textContent = '🔌 Connected';
+      };
+
+      ws.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        
+        if (data.type === 'connection') {
+          addLog(`🔗 ${data.message}`, 'success');
+        }
+        
+        if (data.type === 'subscribed') {
+          addLog(`✅ Subscribed to: ${data.tokens.join(', ')}`, 'success');
+          addLog('🔔 Listening for real-time alerts...', 'info');
+        }
+        
+        if (data.type === 'token_alert') {
+          addLog(`🔥 ALERT: ${data.token.symbol} - Score: ${data.token.score}, Risk: ${data.token.risk_level}`, 'alert');
+        }
+      };
+
+      ws.onerror = (error) => {
+        addLog('❌ WebSocket Error', 'error');
+        button.disabled = false;
+        button.textContent = '🔌 Reconnect';
+      };
+
+      ws.onclose = () => {
+        addLog('🔌 WebSocket Disconnected', 'info');
+        button.disabled = false;
+        button.textContent = '🔌 Reconnect';
+      };
+    }
+  </script>
+</body>
+</html>

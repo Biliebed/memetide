@@ -1,0 +1,171 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 DEMO VIDEO - QUICK START GUIDE (5 MIN SETUP)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPTION 1: Simple Browser Recording (Easiest - 30 min total)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Step 1: Open Demo Page (2 min)
+  → Open: ~/memetide/demo.html in browser
+  OR
+  → Open: https://memetide-production.up.railway.app/docs
+
+Step 2: Install Screen Recorder (3 min)
+  → Mac: Use QuickTime (built-in)
+  → Windows: Use Xbox Game Bar (Win + G)
+  → Any OS: Install OBS Studio (obsproject.com)
+  OR
+  → Use Loom.com (browser-based, easiest)
+
+Step 3: Record (10 min)
+  1. Start recording
+  2. Show demo.html page - click all 3 buttons
+  3. OR show /docs - run scan, multichain, auth
+  4. Open console - run WebSocket code
+  5. Stop recording (aim for 60-90 seconds)
+
+Step 4: Add Voiceover (10 min)
+  → Use Audacity (free) or phone voice recorder
+  → Read script from DEMO_VIDEO_SCRIPT.md
+  → Overlay audio in video editor
+
+Step 5: Export (5 min)
+  → Format: MP4, 1080p, 30fps
+  → Keep under 90 seconds
+  → Keep under 100MB file size
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPTION 2: Professional Demo (Using demo.html)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+We created a custom demo page: ~/memetide/demo.html
+
+Features:
+  ✅ Beautiful gradient UI
+  ✅ 3 interactive demos (Scan, Multi-chain, WebSocket)
+  ✅ One-click buttons
+  ✅ Animated results
+  ✅ Perfect for screen recording
+
+How to use:
+  1. Open demo.html in browser (double-click file)
+  2. Start screen recording
+  3. Click "Run Scan" → wait for results (1s)
+  4. Click "Search Multi-chain" → see Ethereum + Solana
+  5. Click "Connect WebSocket" → see real-time logs
+  6. Stop recording
+  
+Total recording time: 60-75 seconds
+No need to type anything - just click!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+OPTION 3: Swagger UI Recording (Official API)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+More professional, shows real API docs:
+
+1. Open: https://memetide-production.up.railway.app/docs
+2. Start recording
+3. Scroll to show endpoints
+4. Click "POST /scan" → Try it out
+5. Use JSON: {"use_mock_data": true, "top_n": 3}
+6. Click Execute → show results
+7. Click "GET /token/multichain/{symbol}"
+8. Enter: PEPE, chains: ethereum,solana
+9. Execute → show multi-chain results
+10. Open console (F12)
+11. Paste WebSocket code from demo_websocket.js
+12. Show connection + subscription
+13. Stop recording
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RECOMMENDED APPROACH FOR HACKATHON
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Best option: Mix of demo.html + Swagger UI
+
+Timeline (90 seconds):
+  0-10s:   demo.html (show homepage, badges)
+  10-30s:  Swagger UI (run /scan endpoint)
+  30-50s:  Swagger UI (multi-chain search)
+  50-75s:  Browser console (WebSocket)
+  75-85s:  Show /health endpoint (prove it's live)
+  85-90s:  Back to demo.html or GitHub (closing)
+
+This shows:
+  ✅ Professional UI (demo.html)
+  ✅ Real API (Swagger)
+  ✅ Live deployment
+  ✅ All key features
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FILES READY TO USE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. DEMO_VIDEO_SCRIPT.md
+   → Full 90-second script with timing
+
+2. demo.html
+   → Beautiful one-page demo with 3 interactive examples
+   → Open in browser, click buttons, record
+
+3. demo_websocket.js
+   → Copy-paste into browser console
+   → Shows real-time WebSocket connection
+
+4. Live API
+   → https://memetide-production.up.railway.app/docs
+   → Interactive Swagger UI
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NO-STRESS RECORDING PLAN (For You Bro)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+If you want SIMPLEST approach:
+
+1. Open demo.html (double-click file)
+2. Open Loom.com (no install needed)
+3. Click "Record Screen"
+4. Click all 3 demo buttons
+5. Stop recording
+6. Download MP4
+7. Done!
+
+No voiceover needed:
+  - demo.html is self-explanatory
+  - UI shows what's happening
+  - Results speak for themselves
+  - Add background music (optional)
+
+Total time: 15 minutes including upload
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FINAL DELIVERABLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Video should show:
+  ✅ Live deployment URL visible
+  ✅ Fast response (<1s)
+  ✅ Multi-chain search (Ethereum + Solana)
+  ✅ Risk detection (SCAMCOIN = 0 score)
+  ✅ WebSocket real-time
+  ✅ Professional UI
+
+Duration: 60-90 seconds
+Format: MP4, 1080p
+Size: <100MB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NEXT STEP: Just pick one option and record!
+
+Recommended for you: Use demo.html + Loom.com
+Easiest, fastest, looks professional ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
