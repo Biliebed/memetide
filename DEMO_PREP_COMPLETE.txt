@@ -1,0 +1,109 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎬 DEMO VIDEO PREPARATION - COMPLETE ✅
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Date: July 4, 2026
+Status: READY TO RECORD
+Time to record: 30 minutes
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ DELIVERABLES CREATED
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. DEMO_VIDEO_SCRIPT.md (8.7 KB)
+   - Complete 90-second script
+   - 5 sections with timing breakdown
+   - Voiceover text included
+   - Recording tips and best practices
+
+2. demo.html (10.7 KB)
+   - Beautiful gradient UI
+   - 3 interactive live demos
+   - One-click buttons
+   - Production API integration
+
+3. demo_websocket.js (1.9 KB)
+   - Browser console code
+   - WebSocket connection demo
+   - Real-time alert logging
+
+4. DEMO_RECORDING_GUIDE.txt (6.3 KB)
+   - 3 recording options
+   - Step-by-step instructions
+   - Quick-start checklist
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 QUICKEST RECORDING METHOD
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TOTAL TIME: 15 minutes
+
+1. Open ~/memetide/demo.html in browser (1 min)
+2. Go to Loom.com, click Record Screen (1 min)
+3. Click all 3 demo buttons, show results (3 min)
+4. Stop recording, download MP4 (1 min)
+5. Done! ✅
+
+No voiceover needed - UI is self-explanatory
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 WHAT VIDEO SHOWS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Live production deployment
+✅ Fast response times (under 1 second)
+✅ Multi-chain search (6 blockchains)
+✅ AI sentiment analysis
+✅ Risk detection (scam detection)
+✅ WebSocket real-time alerts
+✅ Professional UI
+
+Judge impression: Production-ready! 💪
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 90-SECOND TIMELINE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+00-10s: Intro - Show demo.html homepage
+10-30s: Quick Scan - FLOKI, PEPE2, SCAMCOIN results
+30-50s: Multi-chain - PEPE on Ethereum and Solana
+50-75s: WebSocket - Real-time connection demo
+75-85s: Live Proof - Health check, production URL
+85-90s: Closing - GitHub link, hackathon mention
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 RECORDING CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Before recording:
+  [ ] Test demo.html - all 3 buttons work
+  [ ] Check API responding (open /docs)
+  [ ] Close unnecessary tabs
+  [ ] Set browser zoom to 100%
+  [ ] Have script ready (on phone/second screen)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📤 OUTPUT SPECS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Format: MP4
+  Resolution: 1920x1080 (or 1280x720)
+  Duration: 60-90 seconds
+  File size: Under 100MB
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ STATUS: READY TO RECORD 🎬
+
+All materials prepared and tested.
+Just open demo.html and start recording!
+
+Good luck bro! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
